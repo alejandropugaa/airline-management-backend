@@ -47,7 +47,7 @@ app.use('/api/employee-available', employeeu);
 app.use('/api/available-users', customeru);
 app.use('/api/:id/cancel', cancel);
 app.use('/api/aircrafts', require('./routes/aircraftRoutes'));
-app.use('/api/occupied/:flightId', require('./routes/reservationRoutes'));
+//app.use('/api/occupied/:flightId', require('./routes/reservationRoutes'));
 app.use('/api/dashboard', dashboard);
 
 
