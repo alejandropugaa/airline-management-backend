@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Flight = require('../models/Flight');
+const Reservation = require('../models/Reservation');
 const Employee = require('../models/Employee');
 const Schedule = require('../models/Schedule');
 const authMiddleware = require('../middleware/authMiddleware');
