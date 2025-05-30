@@ -74,7 +74,8 @@ router.delete('/:id', authMiddleware(['admin']), async (req, res) => {
     }
 
     // 3) Ahora sí elimina el vuelo
-    await flight.remove();
+    await Flight.findByIdAndDelete(flightId);
+
     res.json({ message: 'Vuelo eliminado correctamente' });
 
   } catch (error) {
