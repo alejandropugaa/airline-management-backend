@@ -23,7 +23,7 @@ router.post('/', authMiddleware(['admin']), async (req, res) => {
     await employee.save();
     res.status(201).json(employee);
   } catch (error) {
-    console.error('❌ Error al crear empleado:', error);
+    console.error(' Error al crear empleado:', error);
     res.status(500).json({ message: 'Error del servidor', error: error.message });
   }
 });

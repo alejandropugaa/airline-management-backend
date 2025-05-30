@@ -5,7 +5,7 @@ const User = require('../models/User');
 const Customer = require('../models/Customer');
 const authMiddleware = require('../middleware/authMiddleware');
 
-// ✅ Obtener todos los usuarios (GET /api/users)
+// Obtener todos los usuarios (GET /api/users)
 router.get('/', authMiddleware(['admin']), async (req, res) => {
   try {
     const users = await User.find().select('-password');
@@ -15,7 +15,7 @@ router.get('/', authMiddleware(['admin']), async (req, res) => {
   }
 });
 
-// ✅ Crear un nuevo usuario (POST /api/users)
+// Crear un nuevo usuario (POST /api/users)
 router.post('/', authMiddleware(['admin']), async (req, res) => {
   try {
     const { email, password, role } = req.body;
@@ -31,7 +31,7 @@ router.post('/', authMiddleware(['admin']), async (req, res) => {
   }
 });
 
-// ✅ Obtener un usuario por ID (GET /api/users/:id)
+// Obtener un usuario por ID (GET /api/users/:id)
 router.get('/:id', authMiddleware(['admin']), async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select('-password');
@@ -42,7 +42,7 @@ router.get('/:id', authMiddleware(['admin']), async (req, res) => {
   }
 });
 
-// ✅ Actualizar un usuario (PUT /api/users/:id)
+// Actualizar un usuario (PUT /api/users/:id)
 router.put('/:id', authMiddleware(['admin']), async (req, res) => {
   try {
     const { email, role } = req.body;
@@ -59,7 +59,7 @@ router.put('/:id', authMiddleware(['admin']), async (req, res) => {
   }
 });
 
-// ✅ Eliminar un usuario (DELETE /api/users/:id)
+// Eliminar un usuario (DELETE /api/users/:id)
 router.delete('/:id', authMiddleware(['admin']), async (req, res) => {
   try {
     const deleted = await User.findByIdAndDelete(req.params.id);

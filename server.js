@@ -15,24 +15,16 @@ const customeru = require('./routes/customerRoutes');
 const cancel = require('./routes/reservationRoutes');
 const dashboard = require('./routes/dashboardRoutes');
 
-
 const app = express();
-
 // Middleware
 app.use(cors({
   origin: ['https://airline-management-frontend.vercel.app'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true
 }));
-
-
-
-
 app.use(express.json());
-
 // Connect to database
 connectDB();
-
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/flights', flightRoutes);

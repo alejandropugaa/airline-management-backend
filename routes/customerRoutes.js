@@ -3,7 +3,7 @@ const router = express.Router();
 const Customer = require('../models/Customer');
 const User = require('../models/User');
 const authMiddleware = require('../middleware/authMiddleware');
-// PUT /api/customers/profile
+
 router.put('/profile', authMiddleware(['customer']), async (req, res) => {
   console.log('✅ Solicitud PUT /profile recibida de:', req.user?.email || req.user?.id);
   const { phone, address, seatPreference, mealPreference } = req.body;

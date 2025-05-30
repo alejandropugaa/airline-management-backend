@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-
 const baggageSchema = new mongoose.Schema({
   reservation: { type: mongoose.Schema.Types.ObjectId, ref: 'Reservation', required: true },
   weight: { type: Number, required: true },
@@ -8,6 +7,4 @@ const baggageSchema = new mongoose.Schema({
   extraCharge: { type: Number, default: 0 }, 
   createdAt: { type: Date, default: Date.now },
 });
-
-
 module.exports = mongoose.model('Baggage', baggageSchema);

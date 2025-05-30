@@ -47,31 +47,50 @@ async function deleteSchedulesForCrew(crewIds, flightId) {
 }
 
 
-// 🔴 Eliminar vuelo (Solo Admin)
+// Eliminar vuelo (Solo Admin)
 router.delete('/:id', authMiddleware(['admin']), async (req, res) => {
   try {
-    const flight = await Flight.findById(req.params.id);
-    if (!flight) return res.status(404).json({ message: 'Vuelo no encontrado' });
+    const flightId = req.params.id;
+    const flight = await Flight.findById(flightId);
+    if (!flight) {
+      return res.status(404).json({ message: 'Vuelo no encontrado' });
+    }
 
-    // 🔁 Eliminar schedules relacionados
-    await deleteSchedulesForCrew(flight.crew || [], flight._id);
+    // 1) Comprueba si hay reservas asociadas
+    const reservationsCount = await Reservation.countDocuments({ flight: flightId });
+    if (reservationsCount > 0) {
+      return res.status(400).json({
+        message: `Este vuelo tiene ${reservationsCount} reserva(s) asociada(s). ` +
+                 `Mejor cámbialo a status 'cancelled' en lugar de eliminarlo.`
+      });
+    }
 
+    // 2) Borra schedules de tripulación (si existen)
+    try {
+      await deleteSchedulesForCrew(flight.crew || [], flight._id);
+    } catch (schedErr) {
+      console.warn('No se pudieron borrar todos los schedules, pero continuamos:', schedErr);
+    }
+
+    // 3) Ahora sí elimina el vuelo
     await flight.remove();
-    res.json({ message: 'Vuelo eliminado' });
+    res.json({ message: 'Vuelo eliminado correctamente' });
+
   } catch (error) {
     console.error('Error al eliminar vuelo:', error);
     res.status(500).json({ message: 'Error del servidor', error: error.message });
   }
 });
 
-// 🟢 Crear vuelo (Solo Admin)
+
+// Crear vuelo (Solo Admin)
 router.post('/', authMiddleware(['admin']), async (req, res) => {
   const { flightNumber, origin, destination, departureTime, arrivalTime, aircraft, crew = [], price } = req.body;
   try {
     const flight = new Flight({ flightNumber, origin, destination, departureTime, arrivalTime, aircraft, crew, price });
     await flight.save();
 
-    // ✅ Crear schedules con el ID del vuelo
+    // Crear schedules con el ID del vuelo
     await createSchedulesForCrew(crew, departureTime, arrivalTime, flight._id);
 
     res.status(201).json(flight);
@@ -81,7 +100,7 @@ router.post('/', authMiddleware(['admin']), async (req, res) => {
   }
 });
 
-// 🟡 Actualizar vuelo (Admin o Empleado)
+// Actualizar vuelo (Admin o Empleado)
 router.put('/:id', authMiddleware(['admin', 'employee']), async (req, res) => {
   try {
     const original = await Flight.findById(req.params.id).lean();
@@ -113,13 +132,13 @@ router.put('/:id', authMiddleware(['admin', 'employee']), async (req, res) => {
     const added   = newCrew.filter(id => !oldCrew.includes(id));
     const stayed  = newCrew.filter(id => oldCrew.includes(id));
 
-    // ❌ Eliminar schedules de empleados que ya no están en la tripulación
+    // Eliminar schedules de empleados que ya no están en la tripulación
     await deleteSchedulesForCrew(removed, updated._id);
 
-    // ➕ Crear nuevos schedules
+    // Crear nuevos schedules
     await createSchedulesForCrew(added, departureTime, arrivalTime, updated._id);
 
-    // 🔁 Actualizar horarios para los empleados que se mantienen
+    // Actualizar horarios para los empleados que se mantienen
     const day = new Date(departureTime).toLocaleDateString('es-MX', { weekday: 'long' });
     const startTime = new Date(departureTime).toTimeString().slice(0, 5);
     const endTime = new Date(arrivalTime).toTimeString().slice(0, 5);

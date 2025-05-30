@@ -1,4 +1,4 @@
-const verificationCodes = new Map(); // email -> { code, expiresAt }
+const verificationCodes = new Map(); 
 
 function generateCode() {
   return Math.floor(100000 + Math.random() * 900000).toString(); // 6 dígitos

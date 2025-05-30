@@ -12,12 +12,12 @@ router.post('/send-verification-code', async (req, res) => {
   const { email } = req.body;
 
   try {
-    const code = generateCode();         // genera el código (por ejemplo, 6 dígitos)
-    storeCode(email, code);              // lo guarda en memoria con expiración
-    await sendVerificationCodeEmail(email, code); // envía el correo
+    const code = generateCode();         
+    storeCode(email, code);              
+    await sendVerificationCodeEmail(email, code); 
     res.status(200).json({ message: 'Código enviado al correo' });
   } catch (err) {
-    console.error('❌ Error al enviar código:', err);
+    console.error(' Error al enviar código:', err);
     res.status(500).json({ message: 'No se pudo enviar el código' });
   }
 });

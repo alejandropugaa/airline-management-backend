@@ -6,21 +6,20 @@ const { sendConfirmationEmail } = require('../utils/emailService');
 const { sendCancellationEmail } = require('../utils/emailService');
 const Payment = require('../models/Payment');
 const Flight = require('../models/Flight');
-const Customer = require('../models/Customer'); // Asegúrate de importar esto arriba
-
+const Customer = require('../models/Customer'); 
 
 // Crear reservación (Solo Cliente)
 router.post('/', authMiddleware(['customer']), async (req, res) => {
   const { flight, seatNumber, paymentMethod = 'credit_card' } = req.body;
 
   try {
-    // 1. Buscar el cliente
+    // Buscar el cliente
     const customerDoc = await Customer.findOne({ user: req.user._id }).select('frequentFlyer');
     if (!customerDoc) {
       return res.status(404).json({ message: 'Cliente no encontrado para este usuario' });
     }
 
-    // 2. Crear la reservación
+    // Crear la reservación
     const reservation = new Reservation({
       customer: customerDoc._id,
       flight,
@@ -28,11 +27,10 @@ router.post('/', authMiddleware(['customer']), async (req, res) => {
     });
     await reservation.save();
 
-    // 3. Obtener el precio del vuelo
+    //  Obtener el precio del vuelo
     const flightDoc = await require('../models/Flight').findById(flight);
-    const originalAmount = flightDoc?.price || 500; // Precio por defecto si no tiene precio
-
-    // 4. Calcular descuento según el nivel de viajero frecuente
+    const originalAmount = flightDoc?.price || 500; 
+    // Calcular descuento según el nivel de viajero frecuente
     let discount = 0;
     const frequentFlyerStatus = customerDoc.frequentFlyer.status;
     if (frequentFlyerStatus === 'platinum') {
@@ -44,7 +42,7 @@ router.post('/', authMiddleware(['customer']), async (req, res) => {
     }
     const finalAmount = originalAmount - discount;
 
-    // 5. Crear el pago simulado
+    //Crear el pago simulado
     const payment = new Payment({
       reservation: reservation._id,
       amount: finalAmount, // Solo guardar el precio final

@@ -8,20 +8,15 @@ const authMiddleware = require('../middleware/authMiddleware');
 
 const MAX_WEIGHT = 20; // kilos permitidos
 const EXTRA_FEE_PER_KG = 10; // $ por kilo extra
-
 // Check-in baggage (Customer)
 router.post('/', authMiddleware(['customer']), async (req, res) => {
   const { reservation, weight, method } = req.body;
-
   const MAX_WEIGHT = 20;
   const EXTRA_FEE_PER_KG = 10;
-
   try {
     const excessWeight = weight > MAX_WEIGHT ? weight - MAX_WEIGHT : 0;
     const extraCharge = excessWeight * EXTRA_FEE_PER_KG;
-
     const boardingPass = `PASS-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
-
     const baggage = new Baggage({
       reservation,
       weight,
@@ -29,15 +24,11 @@ router.post('/', authMiddleware(['customer']), async (req, res) => {
       extraCharge
     });
     await baggage.save();
-
     let payment = null;
-
     if (extraCharge > 0) {
-      // 👇 Validar que haya método de pago si hay cargo extra
       if (!method) {
         return res.status(400).json({ message: 'Método de pago requerido para exceso de peso' });
       }
-
       payment = new Payment({
         reservation,
         amount: extraCharge,
@@ -46,7 +37,6 @@ router.post('/', authMiddleware(['customer']), async (req, res) => {
       });
       await payment.save();
     }
-
     res.status(201).json({ baggage, payment });
   } catch (error) {
     console.error('Error al registrar equipaje:', error);
